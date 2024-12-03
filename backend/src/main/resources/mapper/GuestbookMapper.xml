@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.fitquest.mapper.guestbook.GuestbookMapper">
+    <resultMap id="GuestbookWithUser" type="com.web.fitquest.model.guestbook.Guestbook">
+        <id property="id" column="id"/>
+        <result property="targetId" column="targetId"/>
+        <result property="userId" column="userId"/>
+        <result property="content" column="content"/>
+        <result property="date" column="date"/>
+        <association property="user" javaType="com.web.fitquest.model.user.User">
+            <id property="id" column="userId"/>
+            <result property="name" column="name"/>
+            <result property="profileImage" column="profileImage"/>
+            <result property="description" column="description"/>
+        </association>
+    </resultMap>
+
+    <select id="selectGuestbook" resultMap="GuestbookWithUser">
+        SELECT 
+            g.id,
+            g.target_id AS targetId,
+            g.user_id AS userId,
+            g.content,
+            g.date,
+            u.name,
+            u.profile_image AS profileImage,
+            u.description
+        FROM guestbook g
+        JOIN user u ON g.user_id = u.id
+        WHERE g.target_id = #{targetId}
+        ORDER BY g.date DESC
+    </select>
+
+    <insert id="insertGuestbook" parameterType="Guestbook" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO guestbook (target_id, user_id, content, date)
+        SELECT 
+            #{targetId}, 
+            #{userId}, 
+            #{content},
+            DATE(NOW())
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM guestbook 
+            WHERE target_id = #{targetId} 
+            AND user_id = #{userId}
+            AND DATE(date) = DATE(NOW())
+        )
+    </insert>
+
+    <delete id="deleteGuestbook">
+        DELETE FROM guestbook 
+        WHERE id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.fitquest.mapper.comment.CommentMapper">
+
+   <!-- 게시글의 모든 댓글 조회 -->
+   <select id="allComments" parameterType="int" 
+           resultType="com.web.fitquest.model.comment.Comment">
+       SELECT 
+           c.id Id, 
+           c.board_id boardId, 
+           c.user_id userId, 
+           u.name writer,  <!-- user 테이블의 현재 이름을 가져옴 -->
+           c.content, 
+           c.date, 
+           c.parent_id parentId, 
+           c.is_delete isDelete
+       FROM comment c
+       JOIN user u ON c.user_id = u.id
+       WHERE c.board_id = #{boardId}
+       AND c.is_delete = 0
+       ORDER BY 
+           CASE
+               WHEN c.parent_id IS NULL THEN c.id
+               ELSE c.parent_id
+           END,
+           c.id ASC
+   </select>
+
+   <!-- 특정 댓글 조회 -->
+   <select id="getComment" parameterType="int" 
+           resultType="com.web.fitquest.model.comment.Comment">
+       SELECT 
+           c.id Id, 
+           c.board_id boardId, 
+           c.user_id userId, 
+           u.name writer,  <!-- user 테이블의 현재 이름을 가져옴 -->
+           c.content, 
+           c.date, 
+           c.parent_id parentId, 
+           c.is_delete isDelete
+       FROM comment c
+       JOIN user u ON c.user_id = u.id
+       WHERE c.id = #{id}
+       AND c.is_delete = 0
+   </select>
+
+   <!-- 특정 댓글의 직접적인 자식 답글들 찾기 -->
+    <select id="findChildComments" parameterType="int" resultType="com.web.fitquest.model.comment.Comment">
+        SELECT 
+            c.id Id,
+            c.board_id boardId,
+            c.user_id userId,
+            u.name writer,  <!-- user 테이블의 현재 이름을 가져옴 -->
+            c.content,
+            c.date,
+            c.parent_id parentId,
+            c.is_delete isDelete
+        FROM comment c
+        JOIN user u ON c.user_id = u.id
+        WHERE c.parent_id = #{parentId}
+        AND c.is_delete = 0
+    </select>
+
+   <!-- 새 댓글 추가 -->
+    <insert id="addComment" parameterType="com.web.fitquest.model.comment.Comment"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comment (
+            board_id, 
+            user_id, 
+            writer, 
+            content, 
+            parent_id
+        ) 
+        SELECT 
+            #{boardId}, 
+            #{userId}, 
+            u.name,  <!-- user 테이블에서 현재 이름을 가져와서 저장 -->
+            #{content}, 
+            <if test="parentId != null">
+                #{parentId}
+            </if>
+            <if test="parentId == null">
+                NULL
+            </if>
+        FROM user u
+        WHERE u.id = #{userId}
+    </insert>
+
+   <!-- 댓글 삭제 (is_delete 플래그 설정) -->
+    <update id="deleteComment" parameterType="com.web.fitquest.model.comment.Comment">
+        UPDATE comment
+        SET is_delete = 1
+        WHERE id = #{id}
+    </update>
+
+</mapper>

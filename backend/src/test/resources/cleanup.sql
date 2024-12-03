@@ -1,0 +1,24 @@
+SET FOREIGN_KEY_CHECKS = 0;
+DROP DATABASE IF EXISTS fitquest_test;
+CREATE DATABASE fitquest_test;
+USE fitquest_test;
+
+DROP TABLE IF EXISTS guestbook;
+DROP TABLE IF EXISTS follow;
+DROP TABLE IF EXISTS user_choseong;
+DROP TABLE IF EXISTS board_choseong;
+DROP TABLE IF EXISTS search_history;
+DROP TABLE IF EXISTS hit;
+DROP TABLE IF EXISTS activity;
+DROP TABLE IF EXISTS `token`;
+DROP TABLE IF EXISTS `comment`;
+DROP TABLE IF EXISTS board;
+DROP TABLE IF EXISTS todo;
+DROP TABLE IF EXISTS category;
+DROP TABLE IF EXISTS `user`;
+
+DROP DATABASE IF EXISTS fitquest_test;
+CREATE DATABASE fitquest_test;
+USE fitquest_test;
+
+SET FOREIGN_KEY_CHECKS = 1; 

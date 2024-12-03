@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.fitquest.mapper.hit.HitMapper">
+    <insert id="insertHit" parameterType="Hit">
+        INSERT INTO hit (board_id, user_id)
+        VALUES (#{boardId}, #{userId})
+    </insert>
+
+    <delete id="deleteHit">
+        DELETE FROM hit 
+        WHERE board_id = #{boardId} AND user_id = #{userId}
+    </delete>
+
+    <select id="countHitsByBoardId" resultType="int">
+        SELECT COUNT(*) as count
+        FROM hit 
+        WHERE board_id = #{boardId}
+    </select>
+
+    <select id="existsByBoardIdAndUserId" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM hit 
+        WHERE board_id = #{boardId} AND user_id = #{userId}
+    </select>
+</mapper>

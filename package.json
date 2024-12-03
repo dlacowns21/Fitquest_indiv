@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "es-hangul": "^2.2.3",
+    "lodash": "^4.17.21",
+    "tailwind-scrollbar-hide": "^1.1.7"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}

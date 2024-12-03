@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.fitquest.mapper.category.CategoryMapper">
+    <select id="getCategoryList" resultType="com.web.fitquest.model.category.Category">
+        SELECT id, user_id userId, title, is_public isPublic, color FROM category WHERE user_id = #{userId}
+    </select>
+
+    <insert id="addCategory" parameterType="com.web.fitquest.model.category.Category">
+        INSERT INTO category (user_id, title, is_public, color)
+        VALUES (#{userId}, #{title}, #{isPublic}, #{color})
+    </insert>
+
+    <select id="getCategoryByUserIdAndCategoryId" resultType="com.web.fitquest.model.category.Category">
+        select id,user_id userId, title,is_public isPublic, color from category where user_id = #{userId} and id = #{categoryId}
+    </select>
+
+    <update id="updateCategory">
+        UPDATE category SET 
+        <if test="title != null">
+            title = #{title},
+        </if>
+        <if test="isPublic != null">
+            is_public = #{isPublic},
+        </if>
+        <if test="color != null">
+            color = #{color}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteCategory">
+        DELETE FROM category WHERE id = #{categoryId}
+    </delete>
+</mapper>

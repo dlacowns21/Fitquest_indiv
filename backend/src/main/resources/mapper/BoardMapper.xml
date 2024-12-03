@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.fitquest.mapper.board.BoardMapper">
+
+    <select id="allBoards" parameterType="com.web.fitquest.model.searchCondition.SearchCondition" 
+            resultType="com.web.fitquest.model.board.Board">
+        SELECT b.id Id, 
+            b.user_id userId, 
+            b.tag, 
+            b.date, 
+            u.name writer,
+            b.title, 
+            b.content, 
+            b.view_count viewCount,
+            b.post_image postImage,
+            (SELECT COUNT(*) 
+                FROM comment c 
+                WHERE c.board_id = b.id 
+                AND c.is_delete = 0) as commentCount,  <!-- 서브쿼리로 댓글 수 조회 -->
+            (SELECT COUNT(*) 
+                FROM hit h 
+                WHERE h.board_id = b.id) as hitCount   <!-- 서브쿼리로 좋아요 수 조회 -->
+        FROM board b
+        JOIN user u ON b.user_id = u.id
+        <where>
+            <if test="tag != null and tag != ''">
+                b.tag = #{tag}
+            </if>
+        </where>
+        ORDER BY b.date DESC
+    </select>
+
+    <select id="getBoard" parameterType="int" resultType="com.web.fitquest.model.board.Board">
+        SELECT b.id Id, 
+               b.user_id userId, 
+               b.tag, 
+               b.date, 
+               u.name writer,  <!-- user_name을 name으로 변경 -->
+               b.title, 
+               b.content, 
+               b.view_count viewCount,
+               b.post_image postImage
+        FROM board b
+        JOIN user u ON b.user_id = u.id
+        WHERE b.id = #{id}
+    </select>
+
+    <insert id="addBoard" parameterType="com.web.fitquest.model.board.Board" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO board (user_id, tag, writer, title, content)
+        SELECT #{userId}, #{tag}, name, #{title}, #{content}
+        FROM user
+        WHERE id = #{userId};
+    </insert>
+
+    <insert id="addBoardChoseong" parameterType="com.web.fitquest.model.board.BoardChoseong">   
+        INSERT INTO board_choseong (board_id, title_choseong, content_choseong, writer_choseong)
+        VALUES (#{boardId}, #{titleChoseong}, #{contentChoseong}, #{writerChoseong});
+    </insert>
+
+    <update id="updateBoard" parameterType="com.web.fitquest.model.board.Board">
+        UPDATE board
+        <set>
+            <if test="tag != null">tag = #{tag},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="viewCount >= 0">view_count = #{viewCount},</if>
+            <if test="postImage != null">post_image = #{postImage},</if>
+            date = date
+        </set>
+        WHERE id = #{id};
+    </update>
+
+    <update id="updateBoardChoseong" parameterType="com.web.fitquest.model.board.BoardChoseong">   
+        UPDATE board_choseong
+        SET 
+            title_choseong = #{titleChoseong},
+            content_choseong = #{contentChoseong},
+            writer_choseong = #{writerChoseong}
+        WHERE board_id = #{boardId};
+    </update>
+
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM board
+        WHERE id = #{id}
+    </delete>
+
+    <select id="searchBoardsByCondition" parameterType="com.web.fitquest.model.searchCondition.SearchCondition" 
+            resultType="com.web.fitquest.model.board.Board">
+        SELECT DISTINCT b.id Id, 
+            b.user_id userId, 
+            b.tag, 
+            b.date, 
+            u.name writer,
+            b.title, 
+            b.content, 
+            b.view_count viewCount,
+            b.post_image postImage,
+            (SELECT COUNT(*) FROM comment c WHERE c.board_id = b.id AND c.is_delete = 0) as commentCount,
+            (SELECT COUNT(*) FROM hit h WHERE h.board_id = b.id) as hitCount
+        FROM board b
+        JOIN user u ON b.user_id = u.id
+        LEFT JOIN board_choseong bc ON b.id = bc.board_id
+        <where>
+            <choose>
+                <when test="key == 'title'">
+                    (REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.title_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
+                </when>
+                <when test="key == 'writer'">
+                    (REPLACE(u.name, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.writer_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
+                </when>
+                <when test="key == 'content'">
+                    (REPLACE(b.content, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.content_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
+                </when>
+                <when test="key == 'all'">
+                    (REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(u.name, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(b.content, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.title_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.writer_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.content_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
+                </when>
+            </choose>
+        </where>
+        ORDER BY b.date DESC
+    </select>
+
+    <insert id="saveSearchHistory" parameterType="com.web.fitquest.model.SearchHistory">
+        INSERT INTO search_history (user_id, content)
+        SELECT #{userId}, #{content}
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM search_history 
+            WHERE user_id = #{userId} 
+            AND content = #{content}
+        )
+    </insert>
+
+    <select id="getSearchHistory" parameterType="com.web.fitquest.model.SearchHistory" resultType="string">
+        SELECT DISTINCT content
+        FROM search_history
+        WHERE user_id = #{userId}
+        AND content LIKE CONCAT('%', #{content}, '%')  
+        LIMIT 7
+    </select>
+
+    <update id="updateWriterChoseongByUserId">
+        UPDATE board_choseong bc
+        JOIN board b ON bc.board_id = b.id
+        SET bc.writer_choseong = #{writerChoseong}
+        WHERE b.user_id = #{userId}
+    </update>
+
+    <select id="getBoardChoseong" parameterType="int" resultType="com.web.fitquest.model.board.BoardChoseong">
+        SELECT board_id boardId, title_choseong titleChoseong, content_choseong contentChoseong, writer_choseong writerChoseong 
+        FROM board_choseong 
+        WHERE board_id = #{boardId}
+    </select>
+</mapper>

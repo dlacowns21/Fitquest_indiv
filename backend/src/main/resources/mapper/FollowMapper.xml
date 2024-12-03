@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.fitquest.mapper.follow.FollowMapper">
+    <select id="getFollowerList" resultType="User">
+        SELECT u.id, u.email, u.name, u.profile_image profileImage, u.description 
+        FROM user u
+        INNER JOIN follow f ON u.id = f.follower_id
+        WHERE f.following_id = #{userId}
+    </select>
+
+    <select id="getFollowingList" resultType="User">
+        SELECT u.id, u.email, u.name, u.profile_image profileImage, u.description 
+        FROM user u
+        INNER JOIN follow f ON u.id = f.following_id
+        WHERE f.follower_id = #{userId}
+    </select>
+
+    <insert id="followUser">
+        INSERT INTO follow (follower_id, following_id)
+        VALUES (#{followerId}, #{followingId})
+    </insert>
+
+    <delete id="unfollowUser">
+        DELETE FROM follow 
+        WHERE follower_id = #{followerId} AND following_id = #{followingId}
+    </delete>
+
+    <select id="isFollowing" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM follow 
+        WHERE follower_id = #{followerId} AND following_id = #{followingId}
+    </select>
+</mapper>

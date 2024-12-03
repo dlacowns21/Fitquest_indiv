@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.fitquest.mapper.category.CategoryMapper">
+<!--
+
+    <insert id="insert" parameterType="com.web.fitquest.model.category.Category">
+        insert into category (user_seq, color, title, is_public)
+        values (
+        #{userSeq,jdbcType=INTEGER},
+        #{color,jdbcType=VARCHAR},
+        #{title,jdbcType=VARCHAR},
+        #{isPublic,jdbcType=TINYINT}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.web.fitquest.model.category.Categor">
+        insert into category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="selectCategoryById" parameterType="int" resultType="com.web.fitquest.model.category.Categor">
+        select 
+        id,
+        user_seq as userSeq,
+        color,
+        title,
+        is_public as isPublic
+        from category where id=#{id}
+    </select>
+
+    <select id="selectAllCategoriesByUserSeq" parameterType="int" resultType="com.web.fitquest.model.category.Categor">
+        select
+        id,
+        user_seq as userSeq,
+        color,
+        title,
+        is_public as isPublic
+        from category
+        where user_seq=#{userSeq}
+    </select>
+
+    <select id="selectAllCategoriesByUserId" parameterType="String" resultType="com.web.fitquest.model.category.Categor">
+        select c.id, c.user_seq userSeq, c.color, c.title, c.is_public
+        from category c
+        join user u on c.user_seq = u.user_seq
+        where u.user_id = #{userId}
+    </select>
+
+    <update id="updateCategory" parameterType="com.web.fitquest.model.category.Category">
+        update category set 
+        title=#{title}, color=#{color}, is_public=#{isPublic} where id=#{id}
+    </update>
+
+    <delete id="deleteCategory" parameterType="int">
+        delete from category where id=#{id}
+    </delete>
+
+-->
+</mapper>

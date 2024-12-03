@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.fitquest.mapper.todo.TodoMapper">
+    <select id="getTodoList" resultType="com.web.fitquest.model.todo.Todo"> 
+        SELECT id,user_id userId,category_id categoryId,is_done isDone,content,date,todo_order todoOrder FROM todo WHERE
+        user_id = #{userId} AND date = #{date} 
+    </select>
+
+    <insert id="addTodo"> 
+        insert into todo (user_id, category_id, content, date, todo_order) 
+        values (#{userId}, #{categoryId}, #{content}, #{date}, #{todoOrder}) 
+    </insert>
+
+    <update id="updateTodo"> 
+        update todo set 
+        <if test="userId!=null">
+            user_id = #{userId},
+        </if>
+        <if test="categoryId!=null">
+            category_id = #{categoryId},
+        </if>
+        <if test="isDone!=null">
+            is_done = #{isDone},
+        </if>
+        <if test="content!=null">
+            content = #{content},
+        </if>
+        <if test="date!=null">
+            date = #{date},
+        </if>
+        <if test="todoOrder!=null">
+            todo_order = #{todoOrder}
+        </if>
+        where id = #{id} 
+    </update>
+
+    <select id="getTodoListByYearAndUserId" resultType="com.web.fitquest.model.todo.Todo">
+        SELECT * FROM todo WHERE
+        user_id = #{userId} AND date LIKE CONCAT(#{date}, '%')
+    </select>
+
+    <select id="getTodoById" resultType="com.web.fitquest.model.todo.Todo">
+        select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where id = #{id}
+    </select>
+
+    <delete id="deleteTodo">
+        delete from todo where id = #{id}
+    </delete>
+
+    <select id="getTodoListByYearAndMonth" resultType="com.web.fitquest.model.todo.Todo">
+        select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where user_id = #{userId} AND date LIKE CONCAT(#{date}, '%')
+    </select>
+
+
+    <select id="getDailyCompletionRatio" resultType="double">
+        SELECT COALESCE(
+            CAST(SUM(CASE WHEN is_done = 1 THEN 1 ELSE 0 END) AS DECIMAL(5,2)) / 
+            NULLIF(COUNT(*), 0),
+            0.0
+        ) as ratio
+        FROM todo
+        WHERE user_id = #{userId}
+        AND date = #{date}
+    </select>
+
+    <select id="getTodoListByCategoryId">
+        select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where category_id = #{categoryId} AND user_id = #{userId}
+    </select>
+
+    <select id="getDoneTodoCount">
+        select count(*) from todo where user_id = #{userId} AND is_done = 1
+    </select>
+
+    <delete id="deleteTestTodos">
+        DELETE FROM todo 
+        WHERE id>0
+    </delete>
+</mapper>

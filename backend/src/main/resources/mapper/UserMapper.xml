@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.fitquest.mapper.user.UserMapper">
+  <select id="selectUserByEmail" resultType="com.web.fitquest.model.user.User">
+    select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user where email = #{email}
+  </select>
+
+  <select id="selectUserById" resultType="com.web.fitquest.model.user.User">
+    select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user where id = #{id}
+  </select>
+
+  <select id="selectUserByName" resultType="com.web.fitquest.model.user.User">
+    select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user where name = #{name}
+  </select>
+
+  <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+    insert into user (email, password, name, is_admin, description) values (#{email}, #{password}, #{name}, #{isAdmin}, #{description})
+  </insert>
+
+  <insert id="insertUserChoseong">
+    insert into user_choseong (user_id, name_choseong) values (#{userId}, #{nameChoseong})
+  </insert>
+
+  <update id="updateUser">
+    update user
+    <set>
+      <if test="email != null">
+        email = #{email},
+      </if>
+      <if test="password != null">
+        password = #{password},
+      </if>
+      <if test="name != null">
+        name = #{name},
+      </if>
+      <if test="profileImage != null">
+        profile_image = #{profileImage},
+      </if>
+      <if test="isAdmin != null">
+        is_admin = #{isAdmin},
+      </if>
+      <if test="description != null">
+        description = #{description}  
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <update id="updateUserChoseong">
+    update user_choseong
+    <set>
+      <if test="nameChoseong != null">
+        name_choseong = #{nameChoseong}
+      </if>
+    </set>
+    where user_id = #{userId}
+  </update>
+
+  <select id="selectRandomUser" resultType="com.web.fitquest.model.user.User">
+    select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user order by rand() limit 1
+  </select>
+
+  <select id="selectUserChoseong" resultType="com.web.fitquest.model.user.UserChoseong">
+    SELECT user_id as userId, name_choseong as nameChoseong 
+    FROM user_choseong 
+    WHERE user_id = #{userId}
+  </select>
+
+  <select id="selectUsersByNameQuery" resultType="com.web.fitquest.model.user.User">
+    SELECT DISTINCT u.id, u.email, u.password, u.name, u.profile_image profileImage, u.is_admin isAdmin, u.description 
+    FROM user u
+    <choose>
+        <when test="isChoseong == true">
+            INNER JOIN user_choseong uc ON u.id = uc.user_id
+            WHERE uc.name_choseong LIKE CONCAT('%', #{word}, '%')
+        </when>
+        <otherwise>
+            WHERE u.name LIKE CONCAT('%', #{word}, '%')
+        </otherwise>
+    </choose>
+  </select>
+
+  <select id="isAdmin" resultType="boolean">
+    SELECT is_admin FROM user WHERE id = #{userId}
+  </select>
+
+  <delete id="deleteTestUsers">
+    DELETE FROM user 
+    WHERE id>0
+  </delete>
+</mapper>

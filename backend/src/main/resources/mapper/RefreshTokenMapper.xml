@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.fitquest.mapper.token.RefreshTokenMapper">
+    
+    <insert id="saveRefreshToken" parameterType="com.web.fitquest.model.token.RefreshToken">
+        INSERT INTO token (user_id, token, expiry_date)
+        VALUES (#{userId}, #{token}, #{expiryDate})
+    </insert>
+    
+    <select id="findByUserId" parameterType="int" resultType="com.web.fitquest.model.token.RefreshToken">
+        SELECT user_id userId, token, expiry_date expiryDate
+        FROM token
+        WHERE user_id = #{userId}
+    </select>
+    
+    <delete id="deleteByUserId" parameterType="int">
+        DELETE FROM token
+        WHERE user_id = #{userId}
+    </delete>
+    
+    <update id="updateRefreshToken" parameterType="com.web.fitquest.model.token.RefreshToken">
+        UPDATE token
+        SET token = #{token},
+            expiry_date = #{expiryDate}
+        WHERE user_id = #{userId}
+    </update>
+    
+</mapper>
